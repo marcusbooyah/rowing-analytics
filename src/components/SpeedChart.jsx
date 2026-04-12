@@ -95,6 +95,18 @@ export default function SpeedChart({ data }) {
         lineStyle: { width: 1.5, color: speed },
         areaStyle: { opacity: 0.08, color: speed },
         itemStyle: { color: speed },
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          label: {
+            formatter: (p) => `Avg ${formatSplit(500 / p.value)}/500m`,
+            color: c.text,
+            fontSize: 11,
+            position: 'insideEndTop',
+          },
+          lineStyle: { color: '#ef4444', type: 'dashed', width: 1.5 },
+          data: [{ type: 'average' }],
+        },
       },
       {
         type: 'line',
