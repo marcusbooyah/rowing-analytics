@@ -13,6 +13,8 @@ import GpsMap from './components/GpsMap';
 import SpeedHistogram from './components/SpeedHistogram';
 import StabilityHeatmap from './components/StabilityHeatmap';
 import BalanceScoreChart from './components/BalanceScoreChart';
+import BoatCheckChart from './components/BoatCheckChart';
+import PieceComparison from './components/PieceComparison';
 
 function SectionHeading({ children }) {
   return (
@@ -98,6 +100,10 @@ function App() {
           <GpsMap data={data} />
           <SpeedChart data={data} />
 
+          {/* Piece Comparison */}
+          <SectionHeading>Piece Comparison</SectionHeading>
+          <PieceComparison data={data} strokeData={strokeData} />
+
           {/* Speed & Sensor Analysis */}
           <SectionHeading>Speed &amp; Sensor Analysis</SectionHeading>
           <OverlayChart data={data} />
@@ -106,6 +112,7 @@ function App() {
           {/* Stroke Analysis */}
           <SectionHeading>Stroke Analysis</SectionHeading>
           <StrokeRateChart data={data} strokeData={strokeData} />
+          <BoatCheckChart data={data} strokeData={strokeData} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <DriveRecoveryChart data={data} strokeData={strokeData} />
             <BalanceScoreChart data={data} strokeData={strokeData} />

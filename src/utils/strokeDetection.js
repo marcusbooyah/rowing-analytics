@@ -155,6 +155,52 @@ export function detectStrokes(data, sampleRate = 10) {
 }
 
 /**
+ * Compute "boat check" for each stroke — the deceleration at the catch.
+ * At the catch, the rower's body weight shifts toward the stern, causing a
+ * sharp deceleration of the boat. We measure this directly from longitudinal
+ * G-force (GForceX) — the magnitude of the negative spike at the catch.
+ *
+ * Result is in milli-g (1g = 1000 mg).
+ *
+ * @param {Array} data - Array of row objects with GForceX, Speed, and elapsedSec
+ * @param {Array} strokes - Detected strokes with catchIdx
+ * @param {number} sampleRate - Samples per second (default 10)
+ * @returns {Array} [{ elapsedSec, checkMilliG, idx }]
+ */
+export function computeBoatCheck(data, strokes, sampleRate = 10) {
+  if (strokes.length === 0) return [];
+
+  const window = Math.max(2, Math.round(sampleRate * 0.4));
+
+  return strokes.map(stroke => {
+    const c = stroke.catchIdx;
+    // Look in a window around the catch for the strongest negative G-force
+    const start = Math.max(0, c - Math.floor(window / 2));
+    const end = Math.min(data.length - 1, c + window);
+
+    let minGForceX = Infinity;
+    let avgSpeed = 0;
+    let count = 0;
+    for (let i = start; i <= end; i++) {
+      if (data[i].GForceX < minGForceX) minGForceX = data[i].GForceX;
+      avgSpeed += data[i].Speed;
+      count++;
+    }
+    avgSpeed = count > 0 ? avgSpeed / count : 0;
+
+    // Magnitude of negative spike, converted to milli-g
+    const checkMilliG = Math.max(0, -minGForceX) * 1000;
+
+    return {
+      elapsedSec: data[c].elapsedSec,
+      checkMilliG,
+      avgSpeed,
+      idx: c,
+    };
+  }).filter(r => r.avgSpeed > 1.0); // Skip stationary periods
+}
+
+/**
  * Compute a stability/balance score for each stroke from gyro data.
  * Lower score = more stable boat.
  * Score is the RMS of GyroX (roll rate) during each stroke cycle.

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import Papa from 'papaparse';
 import { speedToSplit } from '../utils/rowing';
-import { detectStrokes, computeBalanceScores } from '../utils/strokeDetection';
+import { detectStrokes, computeBalanceScores, computeBoatCheck } from '../utils/strokeDetection';
 
 export function useRowingData() {
   const [data, setData] = useState([]);
@@ -42,7 +42,8 @@ export function useRowingData() {
       // Detect strokes and compute derived metrics
       const { strokes, strokeRates, driveRecovery } = detectStrokes(processed);
       const balanceScores = computeBalanceScores(processed, strokes);
-      setStrokeData({ strokes, strokeRates, driveRecovery, balanceScores });
+      const boatCheck = computeBoatCheck(processed, strokes);
+      setStrokeData({ strokes, strokeRates, driveRecovery, balanceScores, boatCheck });
 
       const lastRow = processed[processed.length - 1];
       setSessionInfo({
